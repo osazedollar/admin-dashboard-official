@@ -8,7 +8,7 @@ export default function Navbar() {
   const accountRef = useRef<HTMLDivElement>(null);
 
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState([
+  const [results] = useState([
     "Leather Jacket",
     "Sneakers",
     "Purple Hoodie",
