@@ -7,7 +7,7 @@ import Navbar from "../components/Navbar";
 import DashboardHeader from "../components/Header";
 import Modal from "../helpers/Modal";
 
-import { fetchDashboardStats, type DashboardData } from "./dashboardThunks";
+import { fetchDashboardStats } from "./dashboardThunks";
 import type { RootState, AppDispatch } from "../store";
 
 export default function Dashboard() {
@@ -38,6 +38,10 @@ export default function Dashboard() {
 
     return items.slice(currentIndex, currentIndex + chunkSize);
   }
+
+  if (loading) return <div>Loading dashboard...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
+
 
   const recentSignups = useCycleItems(data?.recentActivity.recentSignups || [], 2, 10000);
   const recentSignins = useCycleItems(data?.recentActivity.recentSignins || [], 2, 10000);
