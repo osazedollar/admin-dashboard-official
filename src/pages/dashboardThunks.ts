@@ -24,7 +24,7 @@ export interface RecentActivity {
 }
 
 export interface DashboardData {
-  summary: SummaryStats;
+  summary: SummaryStats ;
   insights: { topActiveUsers: TopActiveUser[] };
   recentActivity: RecentActivity;
   message: string;
