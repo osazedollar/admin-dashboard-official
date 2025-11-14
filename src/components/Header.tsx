@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import HeroImage from "../assets/pendeet_move.png";
 
 const tabs = [
-  { name: "Overview", path: "/" },
+  { name: "Overview", path: "/dashboard" },
   { name: "Users", path: "/users" },
   { name: "Provider", path: "/providers" },
   { name: "Content", path: "/content" },

@@ -1,16 +1,36 @@
 import { useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import { adminSignin } from "./authThunks";
+import { useNavigate } from "react-router-dom";
 
 export default function SignIn() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({ identifier: "", password: "" });
+
+  const dispatch = useAppDispatch();
+  const { loading, error } = useAppSelector((state) => state.auth);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Signing in with:", form);
-    // Add authentication logic here
+
+    const result = await dispatch(
+      adminSignin({
+        emailOrUsername: form.identifier,
+        password: form.password,
+      })
+    );
+
+    if (adminSignin.fulfilled.match(result)) {
+      console.log("Login successful:", result.payload);
+      // Navigate to dashboard here
+      navigate("/dashboard");
+    } else {
+      console.error("Login error:", result.payload);
+    }
   };
 
   return (
@@ -19,6 +39,13 @@ export default function SignIn() {
         <h1 className="text-2xl font-bold text-gray-700 text-center mb-6">
           Sign In
         </h1>
+
+        {/* Error Message */}
+        {error && (
+          <p className="mb-3 text-center text-red-500 font-medium">
+            {error}
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* Email or Username */}
@@ -53,38 +80,15 @@ export default function SignIn() {
             />
           </div>
 
-          {/* Remember me */}
-          <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                className="w-4 h-4 text-purple-500 border-gray-300 rounded focus:ring-purple-500"
-              />
-              Remember me
-            </label>
-            <a
-              href="#"
-              className="text-purple-500 hover:underline"
-            >
-              Forgot password?
-            </a>
-          </div>
-
           {/* Submit */}
           <button
             type="submit"
-            className="mt-4 w-full py-3 bg-purple-500 text-white font-medium rounded-lg hover:bg-purple-600 transition-colors duration-200"
+            disabled={loading}
+            className="mt-4 w-full py-3 bg-purple-500 text-white font-medium rounded-lg hover:bg-purple-600 transition-colors duration-200 disabled:bg-gray-300"
           >
-            Sign In
+            {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
-
-        <p className="mt-6 text-center text-sm text-gray-500">
-          Don’t have an account?{" "}
-          <a href="#" className="text-purple-500 hover:underline">
-            Sign Up
-          </a>
-        </p>
       </div>
     </div>
   );

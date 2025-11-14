@@ -1,7 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { Bell, User, Search, LogOut, Settings } from "lucide-react";
+import { useAppDispatch } from "../hooks"; // your typed useDispatch
+import { adminLogout } from "../pages/auth/authThunks";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
   const [showNotifications, setShowNotifications] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
@@ -16,7 +22,6 @@ export default function Navbar() {
     "Satin Dress",
   ]);
 
-  // For now, we’ll simulate filtered results
   const filtered = results.filter((item) =>
     item.toLowerCase().includes(query.toLowerCase())
   );
@@ -24,16 +29,10 @@ export default function Navbar() {
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        notifRef.current &&
-        !notifRef.current.contains(event.target as Node)
-      ) {
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
         setShowNotifications(false);
       }
-      if (
-        accountRef.current &&
-        !accountRef.current.contains(event.target as Node)
-      ) {
+      if (accountRef.current && !accountRef.current.contains(event.target as Node)) {
         setShowAccount(false);
       }
     };
@@ -41,14 +40,22 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // ✅ Logout handler
+  const handleLogout = async () => {
+    try {
+      await dispatch(adminLogout()).unwrap(); // uses the session_id from localStorage
+      navigate("/auth/signin"); // back to SignIn
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  };
+
   return (
     <nav className="sticky top-0 z-50 flex justify-between items-center bg-white shadow-sm p-4 rounded-xl border-b border-gray-100 backdrop-blur-sm">
-      {/* Left: Logo or Title */}
       <h1 className="text-xl font-semibold text-[#9c27b0] whitespace-nowrap">
         Pendeet Dashboard
       </h1>
 
-      {/* Middle: Search Bar */}
       <div className="flex items-center w-full max-w-md mx-6 relative">
         <Search className="absolute left-3 text-gray-400" size={18} />
         <input
@@ -59,7 +66,6 @@ export default function Navbar() {
           className="w-full bg-gray-100 pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9c27b0] transition"
         />
 
-        {/* Search Results Card */}
         {query && (
           <div className="absolute top-12 w-full bg-white shadow-lg rounded-lg p-2 border border-gray-100 max-h-60 overflow-y-auto">
             {filtered.length > 0 ? (
@@ -72,15 +78,12 @@ export default function Navbar() {
                 </div>
               ))
             ) : (
-              <div className="px-3 py-2 text-gray-500 text-sm">
-                No results found
-              </div>
+              <div className="px-3 py-2 text-gray-500 text-sm">No results found</div>
             )}
           </div>
         )}
       </div>
 
-      {/* Right: Icons */}
       <div className="flex gap-6 items-center relative">
         {/* Notifications */}
         <div className="relative" ref={notifRef}>
@@ -90,19 +93,11 @@ export default function Navbar() {
           />
           {showNotifications && (
             <div className="absolute right-0 mt-3 w-64 bg-white rounded-lg shadow-lg border border-gray-100 p-3 z-50">
-              <h4 className="text-sm font-semibold text-gray-700 mb-2">
-                Notifications
-              </h4>
+              <h4 className="text-sm font-semibold text-gray-700 mb-2">Notifications</h4>
               <ul className="text-sm text-gray-600 space-y-2">
-                <li className="hover:text-[#9c27b0] cursor-pointer">
-                  New user signed up 🎉
-                </li>
-                <li className="hover:text-[#9c27b0] cursor-pointer">
-                  3 new product uploads
-                </li>
-                <li className="hover:text-[#9c27b0] cursor-pointer">
-                  Vendor payout processed
-                </li>
+                <li className="hover:text-[#9c27b0] cursor-pointer">New user signed up 🎉</li>
+                <li className="hover:text-[#9c27b0] cursor-pointer">3 new product uploads</li>
+                <li className="hover:text-[#9c27b0] cursor-pointer">Vendor payout processed</li>
               </ul>
             </div>
           )}
@@ -123,7 +118,10 @@ export default function Navbar() {
                 <li className="flex items-center gap-2 hover:text-[#9c27b0] cursor-pointer">
                   <Settings size={16} /> Settings
                 </li>
-                <li className="flex items-center gap-2 text-red-500 hover:text-red-600 cursor-pointer">
+                <li
+                  className="flex items-center gap-2 text-red-500 hover:text-red-600 cursor-pointer"
+                  onClick={handleLogout} // ✅ connect logout here
+                >
                   <LogOut size={16} /> Logout
                 </li>
               </ul>
